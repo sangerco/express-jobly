@@ -50,7 +50,7 @@ class Company {
    * */
 
 
-  static async findAll(data) {
+  static async findAll(data = {}) {
     // create query framework for adding possible added parameters
     let query = `SELECT handle,
                   name,
@@ -61,30 +61,27 @@ class Company {
     let paramsArr = [];
     let valuesArr = [];
 
-    // deconstruct params from query
-    const { minEmployees, maxEmployees, name } = data;
-
     // if min employee num is greater than max employee num
     // throw bad request error
-    if(minEmployees > maxEmployees) {
+    if(data.minEmployees > data.maxEmployees) {
       throw new BadRequestError(`Minimum employees must not be greater than maximum employees!`);
     }
     // if minEmployees exists, push it to values array
     // add params string to params array with positional string
-    if(minEmployees) {
-      valuesArr.push(minEmployees);
+    if(data.minEmployees) {
+      valuesArr.push(data.minEmployees);
       paramsArr.push(`num_employees >= $${valuesArr.length}`);
     }
     // if maxEmployees exists, push it to values array
     // add params string to params array with positional string
-    if(maxEmployees) {
-      valuesArr.push(maxEmployees);
+    if(data.maxEmployees) {
+      valuesArr.push(data.maxEmployees);
       paramsArr.push(`num_employees <= $${valuesArr.length}`);
     }
     // if name exists, push it to values array
     // add params string to params array with positional string
-    if(name) {
-      valuesArr.push(`%${name}%`);
+    if(data.name) {
+      valuesArr.push(`%${data.name}%`);
       paramsArr.push(`name ILIKE $${valuesArr.length}`);
     }
     // if strings have been added to params array convert to string

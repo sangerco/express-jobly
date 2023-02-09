@@ -21,24 +21,22 @@ class Job {
         return job;
     }
 
-    static async findAllJobs(data) {
-        const query = `SELECT title, salary, equity,
+    static async findAllJobs(data = {}) {
+        let query = `SELECT title, salary, equity,
                         company_handle AS companyHandle
                         FROM jobs`;
         const paramsArr = [];
         const valuesArr = [];
 
-        const { title, minSalary, hasEquity } = data;
-
-        if(title) {
-            valuesArr.push(`%${title}%`);
+        if(data.title) {
+            valuesArr.push(`%${data.title}%`);
             paramsArr.push(`title ILIKE ${valuesArr.length}`);
         }
-        if(minSalary){
-            valuesArr.push(minSalary);
+        if(data.minSalary){
+            valuesArr.push(data.minSalary);
             paramsArr.push(`salary >= ${valuesArr.length}`);
         }
-        if(hasEquity){
+        if(data.hasEquity){
             valuesArr.push(0.001);
             paramsArr.push(`equity >= ${valuesArr.length}`);
         }
@@ -74,7 +72,7 @@ class Job {
             });
         const titleVarIdx = "$" + (values.length + 1);
     
-        const querySql = `UPDATE companies 
+        const querySql = `UPDATE jobs 
                           SET ${setCols} 
                           WHERE title = ${titleVarIdx} 
                           RETURNING title, 
