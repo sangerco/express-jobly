@@ -4,6 +4,7 @@
 
 const jwt = require("jsonwebtoken");
 const { SECRET_KEY } = require("../config");
+const db = require("../db");
 const { UnauthorizedError } = require("../expressError");
 
 
@@ -42,8 +43,31 @@ function ensureLoggedIn(req, res, next) {
   }
 }
 
+function checkIfAdmin(req, res, next) {
+  try {
+    if(res.locals.user.isAdmin === false) throw new UnauthorizedError();
+    return next();
+  } catch (e) {
+    return next(e)
+  }
+}
+
+function checkIfUserOrAdmin(req, res, next) {
+  try {
+    const user = res.locals.user;
+    if(user.username !== req.params.username && user.isAdmin === false) {
+      throw new UnauthorizedError();
+    }
+    return next();
+  } catch (e) {
+    return next(e);
+  }
+}
+
 
 module.exports = {
   authenticateJWT,
   ensureLoggedIn,
+  checkIfAdmin,
+  checkIfUserOrAdmin
 };

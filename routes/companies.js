@@ -7,6 +7,7 @@ const express = require("express");
 
 const { BadRequestError } = require("../expressError");
 const { ensureLoggedIn } = require("../middleware/auth");
+const { checkIfAdmin } = require("../middleware/auth");
 const Company = require("../models/company");
 
 const companyNewSchema = require("../schemas/companyNew.json");
@@ -24,7 +25,7 @@ const router = new express.Router();
  * Authorization required: login
  */
 
-router.post("/", ensureLoggedIn, async function (req, res, next) {
+router.post("/", ensureLoggedIn, checkIfAdmin, async function (req, res, next) {
   try {
     const validator = jsonschema.validate(req.body, companyNewSchema);
     if (!validator.valid) {
@@ -50,16 +51,18 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
  * Authorization required: none
  */
 
+
 router.get("/", async function (req, res, next) {
   // find if min or max employees is requested, if so, turn string query into an integer
-  if(req.query.minEmployees !== undefined) {
-    req.query.minEmployees = parseInt(req.query.minEmployees);
-  };
-  if(req.query.maxEmployees !== undefined) {
-    req.query.maxEmployees = parseInt(req.query.maxEmployees);
-  };
   try {
-    const companies = await Company.findAll(req.query);
+    const data = req.query;
+    if(data.minEmployees) {
+      data.minEmployees = parseInt(data.minEmployees)
+    }
+    if(data.maxEmployees) {
+      data.maxEmployees = parseInt(data.maxEmployees)
+    }
+    const companies = await Company.findAll(data);
     return res.json({ companies });
   } catch (err) {
     return next(err);
@@ -94,7 +97,7 @@ router.get("/:handle", async function (req, res, next) {
  * Authorization required: login
  */
 
-router.patch("/:handle", ensureLoggedIn, async function (req, res, next) {
+router.patch("/:handle", ensureLoggedIn, checkIfAdmin, async function (req, res, next) {
   try {
     const validator = jsonschema.validate(req.body, companyUpdateSchema);
     if (!validator.valid) {
@@ -114,7 +117,7 @@ router.patch("/:handle", ensureLoggedIn, async function (req, res, next) {
  * Authorization: login
  */
 
-router.delete("/:handle", ensureLoggedIn, async function (req, res, next) {
+router.delete("/:handle",ensureLoggedIn, checkIfAdmin, async function (req, res, next) {
   try {
     await Company.remove(req.params.handle);
     return res.json({ deleted: req.params.handle });

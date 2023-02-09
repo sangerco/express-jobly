@@ -6,8 +6,6 @@ const { sqlForPartialUpdate } = require("../helpers/sql");
 
 /** Related functions for companies. */
 
-let companiesRes;
-
 class Company {
   /** Create a company (from data), update db, return new company data.
    *
@@ -52,7 +50,7 @@ class Company {
    * */
 
 
-  static async findAll() {
+  static async findAll(data) {
     // create query framework for adding possible added parameters
     let query = `SELECT handle,
                   name,
@@ -64,7 +62,8 @@ class Company {
     let valuesArr = [];
 
     // deconstruct params from query
-    const { minEmployees, maxEmployees, name } = req.query;
+    const { minEmployees, maxEmployees, name } = data;
+    console.log(minEmployees)
 
     // if min employee num is greater than max employee num
     // throw bad request error
@@ -73,20 +72,20 @@ class Company {
     }
     // if minEmployees exists, push it to values array
     // add params string to params array with positional string
-    if(minEmployees !== undefined) {
+    if(minEmployees) {
       valuesArr.push(minEmployees);
       paramsArr.push(`num_employees >= $${valuesArr.length}`);
     }
     // if maxEmployees exists, push it to values array
     // add params string to params array with positional string
-    if(maxEmployees !== undefined) {
+    if(maxEmployees) {
       valuesArr.push(maxEmployees);
-      paramsArr.push(`num_employees = $${valuesArr.length}`);
+      paramsArr.push(`num_employees <= $${valuesArr.length}`);
     }
     // if name exists, push it to values array
     // add params string to params array with positional string
-    if(name !== undefined) {
-      valuesArr.push(name);
+    if(name) {
+      valuesArr.push(`%${name}%`);
       paramsArr.push(`name ILIKE $${valuesArr.length}`);
     }
     // if strings have been added to params array convert to string
@@ -97,7 +96,8 @@ class Company {
     // add order string after where string
     query += ` ORDER BY name`;
     // query database with new params
-    companiesRes = await db.query(query, valuesArr);
+    const companiesRes = await db.query(query, valuesArr);
+    if(companiesRes.rows.length === 0) throw new NotFoundError(`No matching companies found.`)
     return companiesRes.rows;
   }
 
