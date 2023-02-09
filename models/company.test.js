@@ -60,7 +60,7 @@ describe("create", function () {
 
 describe("findAll", function () {
   test("works: no filter", async function () {
-    let companies = await Company.findAll(data);
+    let companies = await Company.findAll();
     expect(companies).toEqual([
       {
         handle: "c1",
@@ -83,6 +83,48 @@ describe("findAll", function () {
         numEmployees: 3,
         logoUrl: "http://c3.img",
       },
+    ]);
+  });
+
+  test("find company by minEmployees", async () => {
+    const data = { minEmployees: 3 };
+    const company = await Company.findAll(data);
+    expect(company).toEqual([
+      {
+        handle: "c3",
+        name: "C3",
+        description: "Desc3",
+        numEmployees: 3,
+        logoUrl: "http://c3.img",
+      }      
+    ]);
+  });
+
+  test("find company by maxEmployees", async () => {
+    const data = { maxEmployees: 1 };
+    const company = await Company.findAll(data);
+    expect(company).toEqual([
+      {
+        handle: "c1",
+        name: "C1",
+        description: "Desc1",
+        numEmployees: 1,
+        logoUrl: "http://c1.img",
+      }      
+    ]);
+  });
+
+  test("find company by name", async () => {
+    const data = { name: 'C1' };
+    const company = await Company.findAll(data);
+    expect(company).toEqual([
+      {
+        handle: "c1",
+        name: "C1",
+        description: "Desc1",
+        numEmployees: 1,
+        logoUrl: "http://c1.img",
+      }      
     ]);
   });
 });

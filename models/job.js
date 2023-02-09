@@ -2,6 +2,7 @@
 
 const db = require("../db");
 const { BadRequestError, NotFoundError } = require("../expressError");
+const { sqlForPartialUpdate } = require("../helpers/sql");
 
 class Job {
     // create a job, update, retrieve job data, and delete a job
@@ -65,7 +66,7 @@ class Job {
         return job;
     }
 
-    static async update(title, data) {
+    static async updateJob(title, data) {
         const { setCols, values } = sqlForPartialUpdate(
             data,
             {
@@ -88,7 +89,7 @@ class Job {
         return job;
       }
     
-      static async remove(title) {
+    static async deleteJob(title) {
         const result = await db.query(
               `DELETE
                FROM jobs
@@ -98,5 +99,9 @@ class Job {
         const job = result.rows[0];
     
         if (!job) throw new NotFoundError(`No company: ${title}`);
-      }
+    }
+
 }
+
+
+module.exports = Job;

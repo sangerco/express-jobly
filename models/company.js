@@ -63,7 +63,6 @@ class Company {
 
     // deconstruct params from query
     const { minEmployees, maxEmployees, name } = data;
-    console.log(minEmployees)
 
     // if min employee num is greater than max employee num
     // throw bad request error
