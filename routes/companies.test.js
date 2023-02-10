@@ -221,32 +221,49 @@ describe("GET /companies", function () {
 describe("GET /companies/:handle", function () {
   test("works for anon", async function () {
     const resp = await request(app).get(`/companies/c1`);
-    expect(resp.body).toEqual({
+    expect(resp.body).toMatchObject({
       company: {
         handle: "c1",
         name: "C1",
         description: "Desc1",
         numEmployees: 1,
         logoUrl: "http://c1.img",
+        jobs: [
+          {
+            "id": expect.any(Number),
+            "title": "j1",
+            "salary":100000,
+            "equity": "0.75"
+          }
+        ]
       },
     });
   });
 
   test("works for anon: company w/o jobs", async function () {
     const resp = await request(app).get(`/companies/c2`);
-    expect(resp.body).toEqual({
+    expect(resp.body).toMatchObject({
       company: {
         handle: "c2",
         name: "C2",
         description: "Desc2",
         numEmployees: 2,
         logoUrl: "http://c2.img",
+        jobs: [
+          {
+            "id": expect.any(Number),
+            "title": "j2",
+            "salary":75000,
+            "equity": "0.5"
+          }
+        ]
       },
     });
   });
 
   test("not found for no such company", async function () {
     const resp = await request(app).get(`/companies/nope`);
+    console.log(resp);
     expect(resp.statusCode).toEqual(404);
   });
 });

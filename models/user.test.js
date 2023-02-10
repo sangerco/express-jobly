@@ -12,6 +12,7 @@ const {
   commonBeforeEach,
   commonAfterEach,
   commonAfterAll,
+  jobIds,
 } = require("./_testCommon");
 
 beforeAll(commonBeforeAll);
@@ -104,6 +105,23 @@ describe("register", function () {
     }
   });
 });
+
+// *********************************** applyForJob
+
+describe("Apply for job", () => {
+  test("Appication", async () => {
+    const application = await User.applyforJob('u1', jobIds[1]);
+    console.log(application);
+    expect(application).toEqual(['u1', jobIds[1]]);
+    const appRes = await db.query(`SELECT * FROM applications
+                                      WHERE username = u1 
+                                      AND job_id = $1`,
+                                      [jobIds[1]]);
+    console.log(appRes);
+    expect(appRes.rows.length).toEqual(1);
+  })
+})
+
 
 /************************************** findAll */
 

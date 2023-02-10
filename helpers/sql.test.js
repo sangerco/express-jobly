@@ -14,9 +14,9 @@ describe("test sqlForPartialUpdate", function () {
     test("update with two items", function () {
       const result = sqlForPartialUpdate(
           { test: "test", test2: "test2" },
-          { test3: "test3" });
+          { test2: "test2" });
       expect(result).toEqual({
-        setCols: "\"test\"=$1, \"test3\"=$2",
+        setCols: "\"test\"=$1, \"test2\"=$2",
         values: ["test", "test2"],
       });
     });

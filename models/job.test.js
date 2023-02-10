@@ -8,6 +8,7 @@ const {
   commonBeforeEach,
   commonAfterEach,
   commonAfterAll,
+  jobIds
 } = require("./_testCommon");
 
 beforeAll(commonBeforeAll);
@@ -31,19 +32,19 @@ describe('Create job', () => {
                 title: "New Job",
                 salary: 75000,
                 equity: "0.1",
-                companyhandle: 'c1'
+                companyHandle: 'c1'
             }
         );
 
         const result = await db.query(`SELECT title, salary, 
-                                        equity, company_handle AS companyHandle
+                                        equity, company_handle AS "companyHandle"
                                         FROM jobs WHERE title = 'New Job'`);
         expect(result.rows[0]).toEqual(
             {
                 title: "New Job",
                 salary: 75000,
                 equity: "0.1",
-                companyhandle: 'c1'
+                companyHandle: 'c1'
             }
         );
 
@@ -59,19 +60,19 @@ describe('Find jobs', () => {
                 title: 'j1',
                 salary: 100000,
                 equity: "0.750",
-                companyhandle: 'c1'
+                companyHandle: 'c1'
             },
             {
                 title: 'j2',
                 salary: 75000,
                 equity: "0.500",
-                companyhandle: 'c2'
+                companyHandle: 'c2'
             },
             {
                 title: 'j3',
                 salary: 50000,
                 equity: "0.000",
-                companyhandle: 'c3'
+                companyHandle: 'c3'
             }
         ]);
     });
@@ -79,20 +80,20 @@ describe('Find jobs', () => {
     test('get job with title filter', async () => {
         const data = { title: "j1" };
         const job = await Job.findAllJobs(data);
-        expect(job).toEqual(
+        expect(job).toEqual([
             {
                 title: "j1",
                 salary: 100000,
                 equity: "0.750",
                 companyHandle: "c1"
             }
-        );
+        ]);
     });
 
     test('get jobs with salary filter', async () => {
         const data = { minSalary: 50001 };
         const jobs = await Job.findAllJobs(data);
-        expect(jobs).toEqual(
+        expect(jobs).toEqual([
             {
                 title: 'j1',
                 salary: 100000,
@@ -105,13 +106,13 @@ describe('Find jobs', () => {
                 equity: "0.500",
                 companyHandle: 'c2'
             }            
-        );
+        ]);
     });
 
     test('get jobs with equity filter', async () => {
         const data = { hasEquity: true };
         const jobs = await Job.findAllJobs(data);
-        expect(jobs).toEqual(
+        expect(jobs).toEqual([
             {
                 title: 'j1',
                 salary: 100000,
@@ -124,19 +125,19 @@ describe('Find jobs', () => {
                 equity: "0.500",
                 companyHandle: 'c2'
             }            
-        );        
+        ]);        
     });
 })
 
 describe("get jobs", () => {
-    test('get jobs by title', async () => {
-        const job = await Job.getJob('j1');
+    test('get jobs by id', async () => {
+        const job = await Job.getJob(jobIds[0]);
         expect(job).toEqual(
             {
                 title: 'j1',
                 salary: 100000,
                 equity: "0.750",
-                companyhandle: 'c1'
+                companyHandle: 'c1'
             }
         )
     });
@@ -159,7 +160,7 @@ describe("update jobs", () => {
             equity: 0.000,
             companyHandle: "c1",
           };
-        const job = await Job.updateJob("j1", data);
+        const job = await Job.updateJob(jobIds[0], data);
         expect(job).toEqual(
             {
                 title: "new title",
@@ -169,7 +170,7 @@ describe("update jobs", () => {
             }
         );
         const result = await db.query(
-            `SELECT title, salary, equity, company_handle AS companyHandle
+            `SELECT title, salary, equity, company_handle AS 'companyHandle'
              FROM jobs
              WHERE title = 'new title'`);
         expect(result.rows).toEqual([
@@ -177,7 +178,7 @@ describe("update jobs", () => {
                 title: "new title",
                 salary: 150000,
                 equity: "0",
-                companyhandle: "c1"
+                companyHandle: "c1"
             }
         ]);
     });
@@ -187,7 +188,7 @@ describe("update jobs", () => {
             title: "doesn't matter"
         };
         try {
-            await Job.updateJob("j4", data);
+            await Job.updateJob(4, data);
             fail();
           } catch (err) {
             expect(err instanceof NotFoundError).toBeTruthy();
@@ -197,15 +198,16 @@ describe("update jobs", () => {
 
 describe("delete jobs", () => {
     test("delete a job", async () => {
-        await Job.deleteJob('j3');
+        await Job.deleteJob(jobIds[2]);
         const result = await db.query(`SELECT title FROM jobs
-                                        WHERE title = 'j3'`);
+                                        WHERE id = $1`,
+                                        [jobIds[2]]);
         expect(result.rows.length).toEqual(0);
     });
 
     test("fail if job doesn't exist", async () => {
         try {
-            await Job.deleteJob("j4");
+            await Job.deleteJob(4);
             fail();
           } catch (err) {
             expect(err instanceof NotFoundError).toBeTruthy();
