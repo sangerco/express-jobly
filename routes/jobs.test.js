@@ -84,7 +84,7 @@ describe("GET /jobs", () => {
                 {
                     title: 'j3',
                     salary: 50000,
-                    equity: "0",
+                    equity: null,
                     companyHandle: "c3"
                 }
             ]

@@ -124,7 +124,12 @@ describe('Find jobs', () => {
                 salary: 75000,
                 equity: "0.500",
                 companyHandle: 'c2'
-            }            
+            },            {
+                title: 'j3',
+                salary: 50000,
+                equity: "0.000",
+                companyHandle: 'c3'
+            }         
         ]);        
     });
 })
@@ -144,7 +149,7 @@ describe("get jobs", () => {
 
     test("fail if job doesn't exist", async () => {
         try {
-            await Job.getJob("nope");
+            await Job.getJob(0);
             fail();
           } catch (err) {
             expect(err instanceof NotFoundError).toBeTruthy();
@@ -170,7 +175,7 @@ describe("update jobs", () => {
             }
         );
         const result = await db.query(
-            `SELECT title, salary, equity, company_handle AS 'companyHandle'
+            `SELECT title, salary, equity, company_handle AS "companyHandle"
              FROM jobs
              WHERE title = 'new title'`);
         expect(result.rows).toEqual([
@@ -207,7 +212,7 @@ describe("delete jobs", () => {
 
     test("fail if job doesn't exist", async () => {
         try {
-            await Job.deleteJob(4);
+            await Job.deleteJob(0);
             fail();
           } catch (err) {
             expect(err instanceof NotFoundError).toBeTruthy();

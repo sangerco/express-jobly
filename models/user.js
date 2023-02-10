@@ -97,6 +97,8 @@ class User {
   }
 
   static async applyforJob({username, jobId}) {
+    // check for repeat applications
+    // if exist, throw 400 error
     const duplicateCheck = await db.query(
       `SELECT username
        FROM applications
@@ -108,6 +110,10 @@ class User {
     if (duplicateCheck.rows[0]) {
       throw new BadRequestError(`Duplicate application: ${username}, ${jobId}`);
     }
+
+    // take username and job id from request object
+    // insert data in application table
+    // return username and job id data
 
     const result = await db.query(`
                     INSERT INTO applications
@@ -160,8 +166,20 @@ class User {
            WHERE username = $1`,
         [username],
     );
-
+// use username to query applications made by this user
+// if user has made applications, append job ids applied for
+// user can have applied to multiple jobs, so map multiple job ids
+// to job array
+    const jobAppsRes = await db.query(`SELECT 
+                                        job_id as "jobId"
+                                        FROM applications
+                                        WHERE username = $1`,
+                                        [username]);
+                                
     const user = userRes.rows[0];
+    if(jobAppsRes.rows.length > 0) {
+      user.jobs = jobAppsRes.rows.map(r => r.jobId)
+    }
 
     if (!user) throw new NotFoundError(`No user: ${username}`);
 

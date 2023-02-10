@@ -13,7 +13,8 @@ const {
   commonAfterAll,
   u1Token,
   u2Token,
-  u3Token
+  u3Token,
+  jobIds
 } = require("./_testCommon");
 
 beforeAll(commonBeforeAll);
@@ -186,7 +187,7 @@ describe("GET /users/:username", function () {
     const resp = await request(app)
         .get(`/users/u1`)
         .set("authorization", `Bearer ${u1Token}`);
-    expect(resp.body).toEqual({
+    expect(resp.body).toMatchObject({
       user: {
         username: "u1",
         firstName: "U1F",

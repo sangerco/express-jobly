@@ -100,8 +100,8 @@ class Job {
                RETURNING title`,
             [id]);
         const job = result.rows[0];
-    
-        if (!job) throw new NotFoundError(`No company: ${id}`);
+
+        if (!job) throw new NotFoundError(`No job: ${id}`);
     }
 
 }

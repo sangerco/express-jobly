@@ -109,16 +109,28 @@ describe("register", function () {
 // *********************************** applyForJob
 
 describe("Apply for job", () => {
-  test("Appication", async () => {
-    const application = await User.applyforJob('u1', jobIds[1]);
+  test("Application", async () => {
+    const data = { username: "u1", jobId: jobIds[1] };
+    const application = await User.applyforJob(data);
     console.log(application);
-    expect(application).toEqual(['u1', jobIds[1]]);
+    expect(application).toEqual(data);
     const appRes = await db.query(`SELECT * FROM applications
-                                      WHERE username = u1 
+                                      WHERE username = 'u1' 
                                       AND job_id = $1`,
                                       [jobIds[1]]);
     console.log(appRes);
     expect(appRes.rows.length).toEqual(1);
+  });
+
+  test("fails for duplicate data", async () => {
+    try {
+      const data = { username: "u1", jobId: jobIds[1] };
+      const application = await User.applyforJob(data);
+      const application2 = await User.applyforJob(data);
+      fail();
+    } catch (e) {
+      expect(e instanceof BadRequestError).toBeTruthy();
+    }
   })
 })
 
@@ -158,6 +170,9 @@ describe("get", function () {
       lastName: "U1L",
       email: "u1@email.com",
       isAdmin: false,
+      jobs: [
+        jobIds[0]
+      ]
     });
   });
 
