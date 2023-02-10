@@ -203,10 +203,10 @@ describe("update jobs", () => {
 
 describe("delete jobs", () => {
     test("delete a job", async () => {
-        await Job.deleteJob(jobIds[2]);
+        await Job.deleteJob(jobIds[1]);
         const result = await db.query(`SELECT title FROM jobs
                                         WHERE id = $1`,
-                                        [jobIds[2]]);
+                                        [jobIds[1]]);
         expect(result.rows.length).toEqual(0);
     });
 
